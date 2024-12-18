@@ -1,3 +1,7 @@
+; just type "compile.bat" in cmd to run everything
+
+
+
 .386
 .model flat, stdcall
 option casemap:none
