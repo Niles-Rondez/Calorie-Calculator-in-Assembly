@@ -1,5 +1,3 @@
-; Compile using "compile.bat"
-
 .386
 .model flat, stdcall
 option casemap:none
@@ -40,6 +38,7 @@ includelib \masm32\lib\user32.lib
                       "(5) Very Active: intense exercise 6-7 times a week", 13, 10, \
                       "(6) Extra Active: very intense exercise daily, or physical job", 13, 10, \
                       "Enter Your Activity: ", 0
+    resultPrompt      BYTE "Your daily caloric needs are: ", 0
 
     ; Error messages
     invalidInputMsg   BYTE "Invalid input. Please try again.", 13, 10, 0
@@ -57,6 +56,15 @@ includelib \masm32\lib\user32.lib
     weightPounds      DWORD 0
     weightKg          DWORD 0
     activitySelection DWORD 0
+    calories          DWORD 0
+    bmr               DWORD 0
+
+.data?
+    totalHeightInches DWORD ?
+    totalHeightCm     DWORD ?
+
+.const
+    activityFactors REAL4 1.2, 1.375, 1.55, 1.725, 1.9
 
 .code
 start:
@@ -105,6 +113,26 @@ USUnitSelection:
     invoke atodw, ADDR inputBuffer
     mov weightPounds, eax
 
+    ; Convert US units to metric for calculation
+    mov eax, heightFeet
+    imul eax, 12
+    add eax, heightInches
+    mov totalHeightInches, eax
+    imul eax, 254 ; Convert to centimeters (1 inch = 2.54 cm * 100)
+    cdq
+    mov ecx, 100 ; Load the divisor into a register
+    idiv ecx     ; Divide eax by the value in ecx
+
+    mov totalHeightCm, eax
+
+    mov eax, weightPounds
+    imul eax, 453592 ; Convert to grams (1 pound = 453.592 grams * 1000)
+    cdq
+    mov ecx, 1000 ; Load 1000 into ecx
+    idiv ecx      ; Divide eax by the value in ecx
+
+    mov weightKg, eax
+
     jmp ActivitySelection
 
     ; Metric Units Input
@@ -123,14 +151,13 @@ MetricUnitSelection:
     invoke StdOut, ADDR heightCmPrompt
     invoke StdIn, ADDR inputBuffer, 10
     invoke atodw, ADDR inputBuffer
-    mov heightCm, eax
+    mov totalHeightCm, eax
 
     invoke StdOut, ADDR weightKgPrompt
     invoke StdIn, ADDR inputBuffer, 10
     invoke atodw, ADDR inputBuffer
     mov weightKg, eax
 
-    ; Activity Level Selection
 ActivitySelection:
     invoke StdOut, ADDR activityPrompt1
     invoke StdOut, ADDR activityPrompt2
@@ -148,6 +175,49 @@ InvalidActivity:
     jmp ActivitySelection
 
 ValidActivity:
+    ; Calculate BMR using Mifflin-St Jeor formula
+    mov eax, totalHeightCm
+    imul eax, 625 ; 6.25 * 100 to avoid float handling
+    cdq
+    mov ecx, 100 ; Load the divisor into a register
+    idiv ecx     ; Divide eax by the value in ecx
+
+    mov ecx, eax
+
+    mov eax, weightKg
+    imul eax, 10 ; 10 * weight in kg
+    add eax, ecx
+
+    mov ecx, age
+    imul ecx, 5 ; 5 * age
+    sub eax, ecx
+
+    cmp genderSelection, 1
+    je MaleBMR
+FemaleBMR:
+    sub eax, 161
+    jmp BMRCalculated
+MaleBMR:
+    add eax, 5
+
+BMRCalculated:
+    mov bmr, eax
+
+    ; Adjust BMR based on activity level
+    mov eax, activitySelection
+    sub eax, 1
+    shl eax, 2
+    mov ecx, OFFSET activityFactors
+    add ecx, eax
+    fld DWORD PTR [ecx]
+    fimul bmr
+    fistp calories
+
+    ; Display results
+    invoke StdOut, ADDR resultPrompt
+    invoke dwtoa, calories, ADDR inputBuffer
+    invoke StdOut, ADDR inputBuffer
+
     ; Exit Program
     invoke ExitProcess, 0
 
