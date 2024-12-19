@@ -38,7 +38,11 @@ includelib \masm32\lib\user32.lib
                       "(5) Very Active: intense exercise 6-7 times a week", 13, 10, \
                       "(6) Extra Active: very intense exercise daily, or physical job", 13, 10, \
                       "Enter Your Activity: ", 0
-    resultPrompt      BYTE "Your daily caloric needs are: ", 0
+    resultPrompt      BYTE "Your daily caloric needs are: ", 13, 10, 0
+    weightAdjustments BYTE "Your Mild Weight Loss (0.5 lb/week) Caloric Intake: ", 13, 10, 0
+    extremeLossPrompt BYTE "Your Extreme Weight Loss (2 lb/week) Caloric Intake: ", 13, 10, 0
+    mildGainPrompt    BYTE "Your Mild Weight Gain (0.5 lb/week) Caloric Intake: ", 13, 10, 0
+    extremeGainPrompt BYTE "Your Extreme Weight Gain (2 lb/week) Caloric Intake: ", 13, 10, 0
 
     ; Error messages
     invalidInputMsg   BYTE "Invalid input. Please try again.", 13, 10, 0
@@ -57,7 +61,7 @@ includelib \masm32\lib\user32.lib
     weightKg          DWORD 0
     activitySelection DWORD 0
     calories          DWORD 0
-    bmr               DWORD 0
+    adjustedCalories  DWORD 0
 
 .data?
     totalHeightInches DWORD ?
@@ -65,6 +69,8 @@ includelib \masm32\lib\user32.lib
 
 .const
     activityFactors REAL4 1.2, 1.375, 1.55, 1.725, 1.9
+    lossFactors REAL4 0.88, 0.76, 0.52
+    gainFactors REAL4 1.12, 1.24, 1.48
 
 .code
 start:
@@ -201,7 +207,8 @@ MaleBMR:
     add eax, 5
 
 BMRCalculated:
-    mov bmr, eax
+    ; Final BMR stored
+    mov calories, eax
 
     ; Adjust BMR based on activity level
     mov eax, activitySelection
@@ -210,7 +217,7 @@ BMRCalculated:
     mov ecx, OFFSET activityFactors
     add ecx, eax
     fld DWORD PTR [ecx]
-    fimul bmr
+    fimul calories
     fistp calories
 
     ; Display results
@@ -218,7 +225,39 @@ BMRCalculated:
     invoke dwtoa, calories, ADDR inputBuffer
     invoke StdOut, ADDR inputBuffer
 
+    ; Mild Weight Loss
+    fld calories
+    fmul DWORD PTR [lossFactors]
+    fistp adjustedCalories
+    invoke StdOut, ADDR weightAdjustments
+    invoke dwtoa, adjustedCalories, ADDR inputBuffer
+    invoke StdOut, ADDR inputBuffer
+
+    ; Extreme Weight Loss
+    fld calories
+    fmul DWORD PTR [lossFactors+8] ; Use offset for next factor
+    fistp adjustedCalories
+    invoke StdOut, ADDR extremeLossPrompt
+    invoke dwtoa, adjustedCalories, ADDR inputBuffer
+    invoke StdOut, ADDR inputBuffer
+
+    ; Mild Weight Gain
+    fld calories
+    fmul DWORD PTR [gainFactors]
+    fistp adjustedCalories
+    invoke StdOut, ADDR mildGainPrompt
+    invoke dwtoa, adjustedCalories, ADDR inputBuffer
+    invoke StdOut, ADDR inputBuffer
+
+    ; Extreme Weight Gain
+    fld calories
+    fmul DWORD PTR [gainFactors+8]
+    fistp adjustedCalories
+    invoke StdOut, ADDR extremeGainPrompt
+    invoke dwtoa, adjustedCalories, ADDR inputBuffer
+    invoke StdOut, ADDR inputBuffer
+
     ; Exit Program
     invoke ExitProcess, 0
 
-end start
+END start
