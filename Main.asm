@@ -14,6 +14,8 @@ includelib \masm32\lib\masm32.lib
 includelib \masm32\lib\user32.lib
 
 .data
+    newLine BYTE 13, 10, 0
+
     ; Prompts
     titlePrompt       BYTE "Calorie Calculator", 13, 10, 0
     unitPrompt1       BYTE "Units:", 13, 10, \
@@ -224,38 +226,49 @@ BMRCalculated:
     invoke StdOut, ADDR resultPrompt
     invoke dwtoa, calories, ADDR inputBuffer
     invoke StdOut, ADDR inputBuffer
+    invoke StdOut, ADDR newLine
 
-    ; Mild Weight Loss
+    ; Mild Weight Loss (0.5 lb/week)
     fld calories
-    fmul DWORD PTR [lossFactors]
+    fld DWORD PTR lossFactors       ; Mild loss factor (0.88)
+    fmul
     fistp adjustedCalories
     invoke StdOut, ADDR weightAdjustments
     invoke dwtoa, adjustedCalories, ADDR inputBuffer
     invoke StdOut, ADDR inputBuffer
+    invoke StdOut, ADDR newLine
 
-    ; Extreme Weight Loss
+    ; Extreme Weight Loss (2 lb/week)
     fld calories
-    fmul DWORD PTR [lossFactors+8] ; Use offset for next factor
+    fld DWORD PTR [lossFactors+4]   ; Extreme loss factor (0.76)
+    fmul
     fistp adjustedCalories
     invoke StdOut, ADDR extremeLossPrompt
     invoke dwtoa, adjustedCalories, ADDR inputBuffer
     invoke StdOut, ADDR inputBuffer
+    invoke StdOut, ADDR newLine
 
-    ; Mild Weight Gain
+    ; Mild Weight Gain (0.5 lb/week)
     fld calories
-    fmul DWORD PTR [gainFactors]
+    fld DWORD PTR gainFactors       ; Mild gain factor (1.12)
+    fmul
     fistp adjustedCalories
     invoke StdOut, ADDR mildGainPrompt
     invoke dwtoa, adjustedCalories, ADDR inputBuffer
     invoke StdOut, ADDR inputBuffer
+    invoke StdOut, ADDR newLine
 
-    ; Extreme Weight Gain
+    ; Extreme Weight Gain (2 lb/week)
     fld calories
-    fmul DWORD PTR [gainFactors+8]
+    fld DWORD PTR [gainFactors+4]   ; Extreme gain factor (1.24)
+    fmul
     fistp adjustedCalories
     invoke StdOut, ADDR extremeGainPrompt
     invoke dwtoa, adjustedCalories, ADDR inputBuffer
     invoke StdOut, ADDR inputBuffer
+    invoke StdOut, ADDR newLine
+
+
 
     ; Exit Program
     invoke ExitProcess, 0
