@@ -229,44 +229,44 @@ BMRCalculated:
     invoke StdOut, ADDR newLine
 
     ; Mild Weight Loss (0.5 lb/week)
-    fld calories
-    fld DWORD PTR lossFactors       ; Mild loss factor (0.88)
-    fmul
-    fistp adjustedCalories
-    invoke StdOut, ADDR weightAdjustments
-    invoke dwtoa, adjustedCalories, ADDR inputBuffer
-    invoke StdOut, ADDR inputBuffer
-    invoke StdOut, ADDR newLine
+    ;fld calories
+    ;fld DWORD PTR lossFactors       ; Mild loss factor (0.88)
+    ;fmul
+    ;fistp adjustedCalories
+    ;invoke StdOut, ADDR weightAdjustments
+    ;invoke dwtoa, adjustedCalories, ADDR inputBuffer
+    ;invoke StdOut, ADDR inputBuffer
+    ;invoke StdOut, ADDR newLine
 
     ; Extreme Weight Loss (2 lb/week)
-    fld calories
-    fld DWORD PTR [lossFactors+4]   ; Extreme loss factor (0.76)
-    fmul
-    fistp adjustedCalories
-    invoke StdOut, ADDR extremeLossPrompt
-    invoke dwtoa, adjustedCalories, ADDR inputBuffer
-    invoke StdOut, ADDR inputBuffer
-    invoke StdOut, ADDR newLine
+    ;fld calories
+    ;fld DWORD PTR [lossFactors+4]   ; Extreme loss factor (0.76)
+    ;fmul
+    ;fistp adjustedCalories
+    ;invoke StdOut, ADDR extremeLossPrompt
+    ;invoke dwtoa, adjustedCalories, ADDR inputBuffer
+    ;invoke StdOut, ADDR inputBuffer
+    ;invoke StdOut, ADDR newLine
 
     ; Mild Weight Gain (0.5 lb/week)
-    fld calories
-    fld DWORD PTR gainFactors       ; Mild gain factor (1.12)
-    fmul
-    fistp adjustedCalories
-    invoke StdOut, ADDR mildGainPrompt
-    invoke dwtoa, adjustedCalories, ADDR inputBuffer
-    invoke StdOut, ADDR inputBuffer
-    invoke StdOut, ADDR newLine
+    ;fld calories
+    ;fld DWORD PTR gainFactors       ; Mild gain factor (1.12)
+    ;fmul
+    ;fistp adjustedCalories
+    ;invoke StdOut, ADDR mildGainPrompt
+    ;invoke dwtoa, adjustedCalories, ADDR inputBuffer
+    ;invoke StdOut, ADDR inputBuffer
+    ;invoke StdOut, ADDR newLine
 
     ; Extreme Weight Gain (2 lb/week)
-    fld calories
-    fld DWORD PTR [gainFactors+4]   ; Extreme gain factor (1.24)
-    fmul
-    fistp adjustedCalories
-    invoke StdOut, ADDR extremeGainPrompt
-    invoke dwtoa, adjustedCalories, ADDR inputBuffer
-    invoke StdOut, ADDR inputBuffer
-    invoke StdOut, ADDR newLine
+    ;fld calories
+    ;fld DWORD PTR [gainFactors+4]   ; Extreme gain factor (1.24)
+    ;fmul
+    ;fistp adjustedCalories
+    ;invoke StdOut, ADDR extremeGainPrompt
+    ;invoke dwtoa, adjustedCalories, ADDR inputBuffer
+    ;invoke StdOut, ADDR inputBuffer
+    ;invoke StdOut, ADDR newLine
 
 
 
